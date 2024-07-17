@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Books List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      padding: 20px;
+    }
+    .book-item {
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .book-item h2 {
+      margin-top: 0;
+      margin-bottom: 5px;
+    }
+    .book-item p {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Books List</h1>
+
+  <div id="books-list"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const booksList = document.getElementById('books-list');
+
+      fetch('/bookstore/api/books')
+        .then(response => response.json())
+        .then(books => {
+          books.forEach(book => {
+            const genres = book.genres.length > 0 ? book.genres.join(', ') : 'N/A'; // Handle empty genres array
+            const html = `
+              <div class="book-item">
+                <h2>${book.title}</h2>
+                <p><strong>Author:</strong> ${book.author}</p>
+                <p><strong>Publisher:</strong> ${book.publisher}</p>
+                <p><strong>Pages:</strong> ${book.pages}</p>
+                <p><strong>Genres:</strong> ${genres}</p>
+                <p><strong>Rating:</strong> ${book.rating}</p>
+                <p><a href="/bookstore/book/${book._id}">View Details</a></p>
+              </div>
+            `;
+            booksList.innerHTML += html;
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching books:', error);
+          alert('Error fetching books. Please try again later.');
+        });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Book</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>Edit Book</h1>
+
+  <form id="editBookForm">
+    <label for="title">Title:</label>
+    <input type="text" id="title" name="title" required>
+
+    <label for="author">Author:</label>
+    <input type="text" id="author" name="author" required>
+
+    <label for="pages">Pages:</label>
+    <input type="number" id="pages" name="pages" required>
+
+    <label for="rating">Rating:</label>
+    <input type="number" id="rating" name="rating" step="0.1" required>
+
+    <label for="genres">Genres:</label>
+    <input type="text" id="genres" name="genres" placeholder="Separate genres with commas">
+
+    <button type="submit">Update Book</button>
+  </form>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const bookId = window.location.pathname.split('/').pop();
+      
+      fetch(`/bookstore/api/book/edit/${bookId}`)
+        .then(response => response.json())
+        .then(data => {
+          const book = data.book;
+          document.getElementById('title').value = book.title;
+          document.getElementById('author').value = book.author;
+          document.getElementById('pages').value = book.pages;
+          document.getElementById('rating').value = book.rating;
+          document.getElementById('genres').value = book.genres.join(', ');
+        })
+        .catch(error => {
+          console.error('Error fetching book details:', error);
+          alert('Error fetching book details. Please try again later.');
+        });
+
+      const editBookForm = document.getElementById('editBookForm');
+      editBookForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const formData = new FormData(editBookForm);
+        const updatedBook = {
+          title: formData.get('title'),
+          author: formData.get('author'),
+          pages: formData.get('pages'),
+          rating: formData.get('rating'),
+          genres: formData.get('genres').split(',').map(genre => genre.trim())
+        };
+
+        fetch(`/bookstore/api/book/edit/${bookId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(updatedBook),
+        })
+        .then(response => response.json())
+        .then(data => {
+          alert(data.message);
+          // Redirect to books list or do something else on success
+          window.location.href = '/bookstore'; // Example redirect
+        })
+        .catch(error => {
+          console.error('Error updating book:', error);
+          alert('Error updating book. Please try again later.');
+        });
+      });
+    });
+  </script>
+</body>
+</html>

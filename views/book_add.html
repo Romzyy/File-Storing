@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add a New Book</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      .navbar {
+        background-color: #333;
+        overflow: hidden;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+      }
+      .navbar .left-section {
+        display: flex;
+        align-items: center;
+      }
+      .navbar .left-section a {
+        color: #f2f2f2;
+        text-align: center;
+        text-decoration: none;
+        padding: 14px 20px;
+        display: inline-block;
+      }
+      .navbar .left-section a:hover {
+        background-color: #ddd;
+        color: black;
+      }
+      .navbar .auth-section {
+        display: flex;
+        align-items: center;
+      }
+      .navbar .auth-button {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        padding: 10px 20px;
+        margin-left: 10px;
+        border-radius: 4px;
+      }
+      .navbar .auth-button:hover {
+        background-color: #45a049;
+      }
+      .user-welcome {
+        color: #f2f2f2;
+        margin-right: 10px;
+      }
+      .content {
+        padding: 20px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      button {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <div class="navbar">
+      <div class="left-section">
+        <a href="/bookstore">Homepage</a>
+        <a href="/bookstore/add">Add Book</a>
+      </div>
+      <div class="auth-section">
+        <span
+          id="userWelcome"
+          class="user-welcome"
+          style="display: none"
+        ></span>
+        <button class="auth-button" id="authButton">Login</button>
+      </div>
+    </div>
+
+    <!-- Content Block -->
+    <div class="content" id="content">
+      <h1>Add a New Book</h1>
+      <form action="/bookstore/add" method="POST">
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required /><br /><br />
+
+        <label for="author">Author:</label>
+        <input type="text" id="author" name="author" required /><br /><br />
+
+        <label for="pages">Pages:</label>
+        <input type="number" id="pages" name="pages" required /><br /><br />
+
+        <label for="rating">Rating:</label>
+        <input
+          type="number"
+          id="rating"
+          name="rating"
+          min="0"
+          max="5"
+          required
+        /><br /><br />
+
+        <label for="genres">Genres:</label>
+        <select id="genres" name="genres" required>
+          <option value="Fiction">Fiction</option>
+          <option value="Non-fiction">Non-fiction</option>
+          <option value="Fantasy">Fantasy</option>
+          <option value="Science Fiction">Science Fiction</option></select
+        ><br /><br />
+
+        <button type="submit">Add Book</button>
+      </form>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const authButton = document.getElementById("authButton");
+        const userWelcome = document.getElementById("userWelcome");
+
+        // Check if user is logged in (replace with your authentication logic)
+        fetch("/user/check-login")
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.isLoggedIn) {
+              authButton.textContent = "Logout";
+              authButton.addEventListener("click", function () {
+                fetch("/user/logout", {
+                  method: "POST",
+                })
+                  .then((response) => response.json())
+                  .then((data) => {
+                    if (data.message) {
+                      alert(data.message);
+                      window.location.href = "/user/login"; 
+                    } else {
+                      alert("Error logging out");
+                    }
+                  })
+                  .catch((err) => console.error(err));
+              });
+              userWelcome.textContent = `Hello, ${data.user.first_name}!`; // Display user welcome message
+              userWelcome.style.display = "inline-block"; // Show the welcome message
+            } else {
+              authButton.textContent = "Login";
+              authButton.addEventListener("click", function () {
+                window.location.href = "/user/login"; // Redirect to login page
+              });
+            }
+          })
+          .catch((err) => console.error(err));
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f2f2f2;
+    }
+    .navbar {
+      background-color: #333;
+      overflow: hidden;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+    }
+    .navbar .left-section {
+      display: flex;
+      align-items: center;
+    }
+    .navbar .left-section a {
+      color: #f2f2f2;
+      text-align: center;
+      text-decoration: none;
+      padding: 14px 20px;
+      display: inline-block;
+    }
+    .navbar .left-section a:hover {
+      background-color: #ddd;
+      color: black;
+    }
+    .navbar .auth-section {
+      display: flex;
+      align-items: center;
+    }
+    .navbar .auth-button {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      padding: 10px 20px;
+      margin-left: 10px;
+      border-radius: 4px;
+    }
+    .navbar .auth-button:hover {
+      background-color: #45a049;
+    }
+    .user-welcome {
+      color: #f2f2f2;
+      margin-right: 10px;
+    }
+    .content {
+      padding: 20px;
+    }
+    .sign-up-form {
+      background-color: #fff;
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .sign-up-form h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .sign-up-form label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    .sign-up-form input[type="text"],
+    .sign-up-form input[type="email"],
+    .sign-up-form input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+    .sign-up-form button[type="submit"] {
+      background-color: #4caf50;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      display: block;
+      width: 100%;
+    }
+    .sign-up-form button[type="submit"]:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="left-section">
+      <a href="/bookstore">Homepage</a>
+      <a href="/bookstore/add">Add Book</a>
+    </div>
+    <div class="auth-section">
+      <span id="userWelcome" class="user-welcome" style="display: none"></span>
+      <button class="auth-button" id="authButton">Login</button>
+    </div>
+  </div>
+
+  <!-- Content Block -->
+  <div class="content">
+    <div class="sign-up-form">
+      <h1>Sign Up</h1>
+
+      <!-- Sign Up Form -->
+      <form id="signUpForm" action="/user/sign-up" method="POST">
+        <label for="first_name">First Name:</label>
+        <input type="text" id="first_name" name="first_name" required />
+
+        <label for="last_name">Last Name:</label>
+        <input type="text" id="last_name" name="last_name" required />
+
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required />
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required />
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required />
+
+        <button type="submit">Sign Up</button>
+      </form>
+
+      <p>Already have an account? <a href="/user/login">Login</a></p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("signUpForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const formData = new FormData(document.getElementById("signUpForm"));
+      const data = {};
+      formData.forEach((value, key) => {
+        data[key] = value;
+      });
+
+      fetch("/user/sign-up", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          alert(data.message); // Display success message
+          window.location.href = "/"; // Redirect to homepage
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+          alert("Error signing up. Please try again."); // Display error message
+        });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f2f2f2;
+    }
+    .navbar {
+      background-color: #333;
+      overflow: hidden;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+    }
+    .navbar .left-section {
+      display: flex;
+      align-items: center;
+    }
+    .navbar .left-section a {
+      color: #f2f2f2;
+      text-align: center;
+      text-decoration: none;
+      padding: 14px 20px;
+      display: inline-block;
+    }
+    .navbar .left-section a:hover {
+      background-color: #ddd;
+      color: black;
+    }
+    .navbar .auth-section {
+      display: flex;
+      align-items: center;
+    }
+    .navbar .auth-button {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      padding: 10px 20px;
+      margin-left: 10px;
+      border-radius: 4px;
+    }
+    .navbar .auth-button:hover {
+      background-color: #45a049;
+    }
+    .user-welcome {
+      color: #f2f2f2;
+      margin-right: 10px;
+    }
+    .content {
+      padding: 20px;
+    }
+    .login-form {
+      background-color: #fff;
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .login-form h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .login-form label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    .login-form input[type="email"],
+    .login-form input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+    .login-form button[type="submit"] {
+      background-color: #4caf50;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      display: block;
+      width: 100%;
+    }
+    .login-form button[type="submit"]:hover {
+      background-color: #45a049;
+    }
+    .alert {
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .alert.success {
+      background-color: #4caf50;
+      color: white;
+    }
+    .alert.error {
+      background-color: #ad3229;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <div class="navbar">
+    <div class="left-section">
+      <a href="/bookstore">Homepage</a>
+      <a href="/bookstore/add">Add Book</a>
+    </div>
+    <div class="auth-section">
+      <span id="userWelcome" class="user-welcome" style="display: none"></span>
+      <button class="auth-button" id="authButton">Login</button>
+    </div>
+  </div>
+
+  <!-- Content Block -->
+  <div class="content">
+    <div class="login-form">
+      <h1>Login</h1>
+
+      <!-- Alert Messages -->
+      <div id="alertMessage" class="alert" style="display: none"></div>
+      <div id="loader" style="display:none;">Loading...</div>
+
+      <!-- Login Form -->
+      <form id="loginForm" action="/user/login" method="POST">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required />
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required />
+
+        <button type="submit">Login</button>
+      </form>
+
+      <p>Don't have an account? <a href="/user/sign-up">Sign Up</a></p>
+    </div>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById("loginForm");
+    const alertMessage = document.getElementById("alertMessage");
+
+    loginForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const formData = new FormData(loginForm);
+      const email = formData.get("email");
+      const password = formData.get("password");
+
+      fetch("/user/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.message) {
+            showSuccessMessage(data.message);
+            setTimeout(() => {
+              window.location.href = "/bookstore"; // Redirect to homepage after success message
+            }, 2000); // Redirect after 2 seconds
+          } else {
+            showErrorMessage(data.error);
+          }
+        })
+        .catch((error) => {
+          loader.style.display = "none"; // Hide the loader
+          console.error("Error logging in:", error);
+          showErrorMessage("An error occurred. Please try again later.");
+        });
+    });
+
+    function showSuccessMessage(message) {
+      alertMessage.textContent = message;
+      alertMessage.className = "alert success";
+      alertMessage.style.display = "block";
+    }
+
+    function showErrorMessage(message) {
+      alertMessage.textContent = message;
+      alertMessage.className = "alert error";
+      alertMessage.style.display = "block";
+    }
+  </script>
+</body>
+</html>

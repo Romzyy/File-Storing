@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Details</title>
+</head>
+<body>
+  <h1>Book Details</h1>
+  <div id="book-details">
+    <h2>Loading...</h2>
+  </div>
+
+  <div id="actions">
+    <button onclick="editBook()">Edit</button>
+    <button onclick="deleteBook()">Delete</button>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const bookId = window.location.pathname.split('/').pop();
+      fetch(`/bookstore/api/book/${bookId}`)
+        .then(response => response.json())
+        .then(data => {
+          const book = data.book;
+          const bookDetails = document.getElementById('book-details');
+          bookDetails.innerHTML = `
+            <h2>${book.title}</h2>
+            <p>Author: ${book.author}</p>
+            <p>Publisher: ${book.publisher}</p>
+            <p>Pages: ${book.pages}</p>
+            <p>Genres: ${book.genres}</p>
+            <p>Rating: ${book.rating}</p>
+          `;
+        })
+        .catch(err => console.error(err));
+    });
+
+    function editBook() {
+      const bookId = window.location.pathname.split('/').pop();
+      window.location.href = `/bookstore/edit/${bookId}`;
+    }
+
+    function deleteBook() {
+      const bookId = window.location.pathname.split('/').pop();
+      fetch(`/bookstore/book/${bookId}`, {
+        method: 'DELETE'
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message) {
+          alert(data.message);
+          window.location.href = '/bookstore'; // Redirect to home or any other page after deletion
+        } else {
+          alert('Error deleting book');
+        }
+      })
+      .catch(err => console.error(err));
+    }
+  </script>
+</body>
+</html>

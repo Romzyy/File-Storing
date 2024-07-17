@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User List</title>
+    <style>
+      /* Add your CSS styling here */
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
+      .navbar {
+        background-color: #333;
+        overflow: hidden;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+      }
+      .navbar .left-section {
+        display: flex;
+        align-items: center;
+      }
+      .navbar .left-section a {
+        color: #f2f2f2;
+        text-align: center;
+        text-decoration: none;
+        padding: 14px 20px;
+        display: inline-block;
+      }
+      .navbar .left-section a:hover {
+        background-color: #ddd;
+        color: black;
+      }
+      .navbar .auth-section {
+        display: flex;
+        align-items: center;
+      }
+      .navbar .auth-button {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        padding: 10px 20px;
+        margin-left: 10px;
+        border-radius: 4px;
+      }
+      .navbar .auth-button:hover {
+        background-color: #45a049;
+      }
+      .user-welcome {
+        color: #f2f2f2;
+        margin-right: 10px;
+      }
+      h1 {
+        margin-bottom: 20px;
+        text-align: center; /* Center align the title */
+      }
+      #user-list {
+        max-width: 600px;
+        margin: 0 auto;
+        list-style-type: none;
+        padding: 0;
+      }
+      #user-list li {
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 5px;
+      }
+      #user-list li a {
+        text-decoration: none;
+        color: #333;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <div class="navbar">
+      <!-- Left section with navigation links -->
+      <div class="left-section">
+        <a href="/bookstore">Homepage</a>
+        <a href="/bookstore/add">Add Book</a>
+      </div>
+      <!-- Authentication section -->
+      <div class="auth-section">
+        <span
+          id="userWelcome"
+          class="user-welcome"
+          style="display: none"
+        ></span>
+        <button class="auth-button" id="authButton">Login</button>
+      </div>
+    </div>
+
+    <!-- Content Block -->
+    <h1>User List</h1>
+    <ul id="user-list">
+      <!-- User list will be populated here -->
+    </ul>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        fetch("/user/api/users") // Adjust the endpoint to fetch all users
+          .then((response) => {
+            if (!response.ok) {
+              return response.json().then((data) => {
+                throw new Error(
+                  `HTTP error! Status: ${response.status}: ${data.message}`
+                );
+              });
+            }
+            return response.json();
+          })
+          .then((users) => {
+            const userList = users
+              .map(
+                (user) => `
+                            <li>
+                                <a href="/user/${user._id}">
+                                    ${user.username}
+                                </a>
+                            </li>
+                        `
+              )
+              .join("");
+            document.getElementById("user-list").innerHTML = userList;
+          })
+          .catch((error) => {
+            console.error("Error fetching user list:", error);
+            document.getElementById(
+              "user-list"
+            ).innerHTML = `<li>${error}</li>`;
+          });
+
+        const authButton = document.getElementById("authButton");
+        const userWelcome = document.getElementById("userWelcome");
+
+        // Check if user is logged in (replace with your authentication logic)
+        fetch("/user/check-login")
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.isLoggedIn) {
+              authButton.textContent = "Logout";
+              authButton.addEventListener("click", function () {
+                fetch("/user/logout", {
+                  method: "POST",
+                })
+                  .then((response) => response.json())
+                  .then((data) => {
+                    if (data.message) {
+                      alert(data.message);
+                      window.location.href = "/bookstore"; // Redirect to home or any other page after logout
+                    } else {
+                      alert("Error logging out");
+                    }
+                  })
+                  .catch((err) => console.error(err));
+              });
+              userWelcome.textContent = `Hello, ${data.user.first_name}!`; // Display user welcome message
+              userWelcome.style.display = "inline-block"; // Show the welcome message
+            } else {
+              authButton.textContent = "Login";
+              authButton.addEventListener("click", function () {
+                window.location.href = "/user/login"; // Redirect to login page
+              });
+            }
+          })
+          .catch((err) => console.error(err));
+      });
+    </script>
+  </body>
+</html>
